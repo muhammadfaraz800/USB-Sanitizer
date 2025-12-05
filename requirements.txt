@@ -1,7 +1,8 @@
 customtkinter
 psutil
 pyusb
-cryptography
 libusb
 libusb-package
+cryptography
 pywin32
+watchdog
