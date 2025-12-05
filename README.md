@@ -1,34 +1,52 @@
 # USB Sanitizer & Guardian
 
-**USB Sanitizer** is a secure, automated tool designed to protect Windows systems from malicious USB drives. It continuously monitors for new USB connections, locks them locally to prevent unauthorized access or execution of malware, scans them for threats, and generates a digital certificate for safe, clean drives.
+**USB Sanitizer** is a comprehensive security suite designed to protect organizations from malicious USB drives. It consists of two main components:
+1.  **Admin Station (GUI)**: A centralized kiosk/station where all USBs must be scanned, sanitized, and certified before use.
+2.  **Client Watcher (Background Service)**: A lightweight agent installed on every employee endpoint that enforces the use of certified USBs only.
 
-![USB Guardian Look](https://via.placeholder.com/800x400?text=USB+Guardian+GUI+Preview)
+### 📸 Gallery
+
+![USB Guardian Interface](assets/usb_sanitizer_main.png)
+*The Admin Station Interface for scanning and certifying drives.*
+
+![USB Guardian Alert](assets/usb_sanitizer_action.png)
+*The Client System blocking/ejecting an uncertified drive.*
+
+---
 
 ## 🚀 Features
 
+### 🛡️ Admin Station (The Sanitizer)
 - **Real-Time Monitoring**: Automatically detects when a USB drive is inserted.
 - **Instant Lockdown**: Immediately mounts new drives as **Read-Only** and denies user access to prevent auto-run malware.
 - **Automated Scanning**:
   - Identifies and scans potentially dangerous file types (`.exe`, `.bat`, `.vbs`, etc.).
   - Calculates file hashes (SHA-256) for verification.
-- **Threat Mitigation**:
-  - If threats are found, the drive remains locked and the system attempts to safely eject it.
 - **Digital Certification**:
   - For clean drives, it generates a cryptographically signed `usb_certificate.json` stored on the drive.
-  - Verifies the integrity of the drive's contents against this certificate on subsequent connections.
-- **Modern GUI**: A dark-themed, responsive interface built with `customtkinter`.
+  - Verification includes hardware ID locking (VID/PID/Serial) and content integrity checks.
+
+### 🔒 Client Watcher (The Enforcer)
+- **Continuous Background Monitoring**: Runs silently on client machines (`run_watcher_system.py`).
+- **Certificate Verification**:
+  - When *any* USB is plugged in, it immediately reads the `usb_certificate.json`.
+  - It validates the cryptographic signature using the organization's public key.
+  - It ensures the certificate has not expired.
+- **Automatic Ejection**:
+  - If a USB is **uncertified**, **modified** after certification, or has an **expired** certificate, it is **immediately ejected**.
+  - Prevents users from using unchecked drives on secure systems.
 
 ## 🛠️ Prerequisites
 
 - **OS**: Windows 10/11 (Required for `diskpart`, `icacls`, and PowerShell interactions).
 - **Python**: 3.8 or higher.
-- **Admin Privileges**: The application must run as Administrator to control disk attributes and permissions.
+- **Admin Privileges**: Both the GUI and the Client Watcher must run as Administrator.
 
 ## 📦 Installation
 
 1.  **Clone the Repository**
     ```bash
-    git clone https://github.com/Start-ignite/USB-Sanitizer.git
+    git clone https://github.com/muhammadfaraz800/USB-Sanitizer.git
     cd USB-Sanitizer
     ```
 
@@ -36,30 +54,31 @@
     ```bash
     pip install -r requirements.txt
     ```
-    *Note: This will install `customtkinter`, `psutil`, `pyusb`, `cryptography`, `libusb-package`, and others.*
 
 ## 🖥️ Usage
 
-1.  **Run the Application**
-    Open a terminal as **Administrator** and run:
-    ```bash
-    python gui.py
-    ```
-    *If you strictly run it without admin rights, the script will attempt to auto-elevate itself, prompting a UAC dialog.*
+### 1. Admin Station (Sanitizing USBs)
+Use this on your dedicated security kiosk.
+```bash
+python gui.py
+```
+- **Workflow**: Plugin USB -> Wait for Scan -> If Clean, Click "Generate Certificate".
 
-2.  **Workflow**
-    - **Connect a USB**: The app detects it and shows "Scanning...".
-    - **Wait**: The drive is locked. The app checks for dangerous files.
-    - **Clean Drive**: Status changes to "Clean". You can now click **"Generate Certificate"** (if configured) or simply use the drive.
-    - **Infected Drive**: Status changes to "Infected". The app constantly tries to eject it to protect your PC.
+### 2. Client System (Protecting Endpoints)
+Deploy this on all employee/client machines.
+```bash
+python run_watcher_system.py
+```
+- **Behavior**: It will sit in the background. If anyone plugs in a USB that hasn't been certified by the Admin Station, it will be rejected and ejected instantly.
 
 ## 📂 Project Structure
 
-- `gui.py`: Main entry point. Handles the UI and background worker thread.
-- `usb_scanner.py`: Logic for locking drives (`diskpart`), changing permissions (`icacls`), and scanning files.
-- `cert_util.py`: Handles cryptographic operations, hashing file contents, and signing certificates.
-- `usb_info.py` & `usb_ejector.py`: Helpers for gathering USB metadata and safely ejecting drives.
-- `generate_keys.py`: Generates the RSA private/public key pair used for signing certificates (stored in `C:\Windows\private_key.pem`).
+- `gui.py`: **Admin Dashboard**. Handles scanning, locking, and signing certificates.
+- `run_watcher_system.py`: **Client Service**. Monitors for USBs and enforces certificate validity.
+- `hide_usb_drive.py`: Worker script used by the watcher to hide/validate drives.
+- `cert_util.py`: Shared core for cryptographic operations (signing & verifying).
+- `usb_scanner.py`: Logic for drive locking and malware scanning.
+- `generate_keys.py`: Generates the RSA Key Pair (`private_key.pem` for Admin, `public_key.pem` for Clients).
 
 ## ⚠️ Disclaimer
 
