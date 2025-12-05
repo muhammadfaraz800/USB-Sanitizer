@@ -14,7 +14,7 @@ from datetime import datetime
 
 # --- Core Dependencies & Project Modules ---
 try:
-    from usb_info import get_usb_storage_devices
+    from .usb_info import get_usb_storage_devices
     from cryptography.hazmat.primitives import serialization
     from cryptography.hazmat.primitives.asymmetric import padding
     from cryptography.hazmat.primitives import hashes

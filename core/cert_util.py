@@ -11,8 +11,8 @@ from cryptography.hazmat.primitives import serialization
 import subprocess
 
 # It's better to import these at the top level
-from usb_info import get_usb_storage_devices
-from generate_keys import generate_key_pair
+from .usb_info import get_usb_storage_devices
+from .generate_keys import generate_key_pair
 
 # A centralized, authoritative list of files and folders to ignore during hashing.
 IGNORE_LIST = {

@@ -15,7 +15,7 @@ import os
 import hashlib
 import sys
 import ctypes
-from usb_info import list_removable_drives  # Ensure usb_info.py is alongside
+from .usb_info import list_removable_drives  # Ensure usb_info.py is alongside
 
 # --- ADMIN ELEVATION CHECK ---
 def is_admin() -> bool:

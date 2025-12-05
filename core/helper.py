@@ -17,9 +17,9 @@ from datetime import datetime
 # --- Imports from existing project files ---
 try:
     import win32file
-    from usb_ejector import eject_drive
-    from usb_logger import log_usb_activity
-    from usb_info import get_usb_storage_devices
+    from .usb_ejector import eject_drive
+    from .usb_logger import log_usb_activity
+    from .usb_info import get_usb_storage_devices
     from cryptography.hazmat.primitives import serialization
     from cryptography.hazmat.primitives.asymmetric import padding
     from cryptography.hazmat.primitives import hashes

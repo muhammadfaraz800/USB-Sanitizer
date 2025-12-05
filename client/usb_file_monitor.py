@@ -6,11 +6,19 @@
 
 import os
 import time
+import sys
+# Add parent directory to path to allow importing 'core'
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler, DirModifiedEvent, FileModifiedEvent
 
 # Import the upgraded forensic logger
-from usb_logger import log_usb_activity, get_file_hash
+try:
+    from core.usb_logger import log_usb_activity, get_file_hash
+except ImportError:
+    # If running from root as a module, or if core isn't found
+    from core.usb_logger import log_usb_activity, get_file_hash
 
 
 class ForensicEventHandler(FileSystemEventHandler):
