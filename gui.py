@@ -15,12 +15,12 @@ import psutil
 
 # --- Backend Logic (Refactored from your scripts) ---
 try:
-    from core.usb_info import list_removable_drives, get_usb_storage_devices
-    from core.usb_scanner import scan_and_restore, clear_drive_readonly, restore_user_access
-    from core.usb_ejector import eject_drive
+    from usb_info import list_removable_drives, get_usb_storage_devices
+    from usb_scanner import scan_and_restore, clear_drive_readonly, restore_user_access
+    from usb_ejector import eject_drive
     # This now imports from your MODIFIED cert_util.py
-    from core.cert_util import generate_and_store_cert as backend_gen_cert
-    from core.generate_keys import generate_key_pair
+    from cert_util import generate_and_store_cert as backend_gen_cert
+    from generate_keys import generate_key_pair
 except ImportError as e:
     print(f"CRITICAL ERROR: Failed to import a required module: {e}")
     print("Please ensure all project .py files are in the same directory as this GUI script.")

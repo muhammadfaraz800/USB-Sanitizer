@@ -16,15 +16,12 @@ import time
 import subprocess
 
 # --- Core Dependencies & Project Modules ---
-# Add parent directory to path to allow importing 'core'
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 try:
     import win32file
-    from core.usb_ejector import eject_drive
-    from core.usb_logger import log_usb_activity
+    from usb_ejector import eject_drive
+    from usb_logger import log_usb_activity
     # The USBCertificateValidator class contains the core validation logic.
-    from core.validate_cert import USBCertificateValidator
+    from validate_cert import USBCertificateValidator
 except ImportError as e:
     print(f"FATAL: A required library or project file is missing: {e}")
     # Exit with a non-zero code to indicate a critical setup failure.

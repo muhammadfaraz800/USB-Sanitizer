@@ -14,7 +14,7 @@ import subprocess
 
 # --- Core Dependencies & Project Modules ---
 try:
-    from client.usb_file_monitor import monitor_usb
+    from usb_file_monitor import monitor_usb
 except ImportError as e:
     print(f"FATAL: A required library or project file is missing: {e}")
     sys.exit(1)
@@ -50,12 +50,11 @@ def main():
     print("--- USB Validation Service Started ---")
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    # Updated path to point to the new location in 'client' folder
-    worker_script_path = os.path.join(script_dir, "client", "hide_usb_drive.py")
+    worker_script_path = os.path.join(script_dir, "hide_usb_drive.py")
 
     if not os.path.exists(worker_script_path):
         print(f"FATAL ERROR: The worker script 'hide_usb_drive.py' was not found.")
-        print(f"Please ensure it is in 'client/' subfolder: {worker_script_path}")
+        print(f"Please ensure it is in the same folder: {script_dir}")
         time.sleep(15)
         sys.exit(1)
 
