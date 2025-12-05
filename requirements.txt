@@ -1,0 +1,7 @@
+customtkinter
+psutil
+pyusb
+cryptography
+libusb
+libusb-package
+pywin32
