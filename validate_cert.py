@@ -49,11 +49,40 @@ class USBCertificateValidator:
         cert_path = os.path.join(self.base_path, "usb_certificate.json")
         rand_path = os.path.join(self.base_path, "random_string.txt")
         sig_path = os.path.join(self.base_path, "certificate.sig")
-        pub_key_path = os.path.join(self.base_path, "public_key.pem")
+        
+        # Look for public key on the HOST SYSTEM, not the USB.
+        # 1. Check C:\Windows\public_key.pem (Standard location)
+        pub_key_path = os.path.join("C:\\", "Windows", "public_key.pem")
+        if not os.path.exists(pub_key_path):
+            # 2. Check current script directory (Fallback)
+            pub_key_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "public_key.pem")
 
-        # 1. Check for required files
-        if not all(os.path.exists(p) for p in [cert_path, rand_path, sig_path, pub_key_path]):
-            print("[FAIL] Missing one or more certificate files.")
+        if not os.path.exists(pub_key_path):
+             print(f"[FAIL] Public Key not found on Client System.")
+             print("Please ensure 'public_key.pem' is in C:\\Windows\\ or the script directory.")
+             # Fallback to checking the USB drive itself, just in case legacy setup
+             pub_key_path_usb = os.path.join(self.base_path, "public_key.pem")
+             if os.path.exists(pub_key_path_usb):
+                 print(f"Warning: Using public key from USB drive (Less Secure).")
+                 pub_key_path = pub_key_path_usb
+             else:
+                 return False
+
+        # 1. Check for required files on USB
+        missing_files = []
+        # Removed public_key.pem from this list as it is now checked locally
+        for p_name in ["usb_certificate.json", "random_string.txt", "certificate.sig"]:
+             full_p = os.path.join(self.base_path, p_name)
+             if not os.path.exists(full_p):
+                 missing_files.append(p_name)
+        
+        if missing_files:
+            print(f"[FAIL] Missing files on USB: {missing_files}")
+            print(f"Debug: Looking in {self.base_path}")
+            try:
+                print(f"Debug: Directory contents: {os.listdir(self.base_path)}")
+            except Exception as e:
+                print(f"Debug: Could not list directory: {e}")
             return False
 
         # 2. Load the certificate
@@ -132,8 +161,13 @@ class USBCertificateValidator:
                 for file in files:
                     if file in IGNORE_LIST: continue
                     with open(os.path.join(root, file), 'rb') as f:
+                        read_size = 0
+                        MAX_HASH_SIZE = 10 * 1024 * 1024
                         while chunk := f.read(4096):
                             content_hasher.update(chunk)
+                            read_size += len(chunk)
+                            if read_size >= MAX_HASH_SIZE:
+                                break
                     file_count += 1
         except (IOError, PermissionError):
             print("FAILED (Error reading file content)")

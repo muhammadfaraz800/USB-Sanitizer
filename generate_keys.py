@@ -22,6 +22,7 @@ def generate_key_pair():
 
     # --- PATH: Define the path for the private key in C:\Windows ---
     private_key_path = os.path.join('C:\\', 'Windows', 'private_key.pem')
+    public_key_local_path = os.path.join('C:\\', 'Windows', 'public_key.pem')
     try:
         with open(private_key_path, "wb") as f:
             f.write(private_key.private_bytes(
@@ -29,16 +30,25 @@ def generate_key_pair():
                 format=serialization.PrivateFormat.PKCS8,
                 encryption_algorithm=serialization.NoEncryption()
             ))
+
+        # Get the public key from the private key
+        public_key = private_key.public_key()
+        
+        # Save local copy of public key for client validation on this machine
+        with open(public_key_local_path, "wb") as f:
+             f.write(public_key.public_bytes(
+                encoding=serialization.Encoding.PEM,
+                format=serialization.PublicFormat.SubjectPublicKeyInfo
+            ))
+
         print("✅ private_key.pem and public_key.pem created.")
-        print(f"✅ private_key.pem successfully saved to: {private_key_path}")
+        print(f"✅ Keys successfully saved to C:\\Windows\\")
     except PermissionError:
-        print(f"❌ PERMISSION DENIED: Could not write to {private_key_path}.")
+        print(f"❌ PERMISSION DENIED: Could not write keys to C:\\Windows.")
         print("   Please run this script as an Administrator.")
     except Exception as e:
-        print(f"❌ An error occurred while saving the private key: {e}")
-    # Get the public key from the private key
-    public_key = private_key.public_key()
-
+        print(f"❌ An error occurred while saving the keys: {e}")
+    
     """
     Save the public key to a file on a USB drive.
     """
@@ -46,9 +56,7 @@ def generate_key_pair():
     removable_drives = list_removable_drives()
 
     if not removable_drives:
-        print("\n❌ No USB drives detected. The public key cannot be saved to a USB drive.")
-        print("✅ private_key.pem has been created. Please insert a USB and run this script again to save the public_key.pem.")
-
+        print("\n❌ No USB drives detected. The public key was saved locally but not to USB.")
     else:
         # --- Save public key to each detected USB Drive ---
         print(f"\nFound {len(removable_drives)} USB drive(s). Saving public key...")
@@ -56,6 +64,7 @@ def generate_key_pair():
             drive_letter = drive["mountpoint"]
             public_key_path = os.path.join(f"{drive_letter}:\\", "public_key.pem")
             try:
+                # We can just copy the bytes we already generated or write again
                 with open(public_key_path, "wb") as f:
                     f.write(public_key.public_bytes(
                         encoding=serialization.Encoding.PEM,

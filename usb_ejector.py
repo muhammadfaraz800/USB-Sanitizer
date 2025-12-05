@@ -22,7 +22,8 @@ def is_removable_drive(drive_letter):
 
 
 def eject_drive(drive_letter):
-    time.sleep(1)
+    # Give the system a moment to release any locks
+    time.sleep(3)
 
     if not is_drive_present(drive_letter + ":\\"):
         logger.warning(f"Drive {drive_letter}: not found. Skipping eject.")

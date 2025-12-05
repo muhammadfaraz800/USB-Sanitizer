@@ -114,6 +114,9 @@ def process_drive(drive_letter: str) -> bool:
             change_drive_letter(guid, drive_letter)
             return False
 
+        # Allow time for the mount to be fully recognized
+        time.sleep(2)
+
         validator = USBCertificateValidator(drive_letter)
         validator.base_path = temp_mount + "\\"
         is_valid = validator.validate_certificate()
