@@ -4,11 +4,11 @@
 
 ### 📸 Gallery
 
+![USB Guardian Alert](assets/usb_sanitizer_action.png)
+
 ![USB Guardian Interface](assets/usb_sanitizer_main.png)
 *The Admin Dashboard: Scans USBs and issues certificates.*
 
-![USB Guardian Alert](assets/usb_sanitizer_action.png)
-*The Lab Computer: Ejecting an uncertified USB automatically.*
 
 ---
 
